@@ -19,7 +19,7 @@ html, body {
 
 @media (max-width: 1024px) {
     html, body {
-        height: 100%;
+        height: 100dvh;
         overscroll-behavior-y: none;
     }
 }
@@ -27,7 +27,7 @@ html, body {
 @media (min-width: 1025px) {
     html, body {
         height: auto;
-        min-height: 100vh;
+        min-height: 100dvh;
         overflow-y: auto;
         overscroll-behavior-y: auto;
     }
@@ -42,10 +42,12 @@ html, body {
 }
 
 /* Hide Scrollbar */
-.hide-scrollbar::-webkit-scrollbar {
+.hide-scrollbar::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar {
     display: none;
 }
-.hide-scrollbar {
+.hide-scrollbar,
+.no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
 }
@@ -71,24 +73,22 @@ html, body {
 
 /* Mobile Layout Overrides */
 @media (max-width: 1024px) {
-    /* Mobile Scroll Snap */
+    /* Mobile Container */
     .mobile-snap-container {
+        position: relative;
         display: flex;
-        flex-direction: column;
-        overflow-y: auto;
-        overflow-x: hidden;
-        scroll-snap-type: y mandatory;
-        scroll-behavior: smooth;
-        /* Fix for iOS momentum scrolling */
+        align-items: center;
+        justify-content: center;
+        overflow: hidden;
         -webkit-overflow-scrolling: touch;
     }
 
     .quote-card-wrapper {
-        flex: 0 0 100%;
-        scroll-snap-align: start;
-        scroll-snap-stop: always;
-        height: calc(100vh - 104px); /* Adjusting for header height */
-        padding: 1rem 1rem 2rem 1rem;
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: calc(100dvh - 120px); /* Adjusting for header height pt-[120px] */
+        padding: 1.5rem 1.5rem 4.5rem 1.5rem; /* Space for action buttons */
         width: 100%;
         display: flex;
         justify-content: center;
@@ -96,17 +96,42 @@ html, body {
         will-change: transform;
         touch-action: pan-y;
         perspective: 1000px;
+        opacity: 0;
+        pointer-events: none;
+        transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+        z-index: 10;
+    }
+    
+    /* Top card active state */
+    .quote-card-wrapper.active-card {
+        opacity: 1;
+        pointer-events: auto;
+        z-index: 30;
+        transform: scale(1) translateX(0) rotate(0deg);
+    }
+    
+    /* Background card state */
+    .quote-card-wrapper.bg-card {
+        opacity: 1;
+        z-index: 20;
+        transform: scale(0.94) translateY(-12px);
+    }
+    
+    /* Swipe off-screen animations */
+    .quote-card-wrapper.swipe-left-out {
+        transform: translateX(-150%) rotate(-15deg) scale(0.9);
+        opacity: 0;
+        z-index: 40;
+    }
+    
+    .quote-card-wrapper.swipe-right-out {
+        transform: translateX(150%) rotate(15deg) scale(0.9);
+        opacity: 0;
+        z-index: 40;
     }
     
     .quote-card {
-        transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.35s ease;
-        transform: scale(0.93) translateY(-14px);
-        opacity: 0.5;
-    }
-    
-    .quote-card.card-3d-active {
-        transform: scale(1) translateY(0);
-        opacity: 1;
+        transition: box-shadow 0.35s ease, border-color 0.3s ease;
     }
 
     .carousel-dot {
@@ -146,22 +171,27 @@ html, body {
 }
 
 /* Desktop Layout Overrides */
-@media (min-width: 1024px) {
+@media (min-width: 1025px) {
     .mobile-snap-container {
-        scroll-snap-type: none;
-        height: auto;
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
         gap: 1.5rem;
         padding: 8rem 2rem 2rem 2rem;
+        position: static;
+        overflow: visible;
     }
 
     .quote-card-wrapper {
+        position: relative;
         height: 100%;
         min-height: 400px;
         padding: 0;
-        scroll-snap-align: none;
         touch-action: auto;
+        opacity: 1 !important;
+        pointer-events: auto !important;
+        transform: none !important;
+        transition: none !important;
+        z-index: auto !important;
     }
     
     .quote-card {

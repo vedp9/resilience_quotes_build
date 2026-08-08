@@ -10,7 +10,7 @@ const quotesData = [
   {
     id: 2,
     category: "Mental Toughness",
-    quote: "The only way we can change is to be real with ourselves. If you look in the mirror and you see a fat person, don't tell yourself you need to lose a couple of pounds. Tell the truth.",
+    quote: "The only way we can change is to be real with ourselves. If you know you are falling short, don't sugarcoat it to protect your ego. Tell the truth.",
     author: "David Goggins",
     source: "Can't Hurt Me",
     daily_actionable_insight: "Audit your weaknesses objectively. Write down one brutal truth about your current situation."
@@ -20,7 +20,7 @@ const quotesData = [
     category: "Mental Toughness",
     quote: "We don't rise to the level of our expectations, we fall to the level of our training.",
     author: "Archilochus",
-    source: "Ancient Greek Philosophy",
+    source: "Modern adaptation (popularized by James Clear)",
     daily_actionable_insight: "Evaluate your daily routines. Are they preparing you for the hardest version of your goals?"
   },
   {
@@ -74,7 +74,7 @@ const quotesData = [
   {
     id: 10,
     category: "Compounding & Growth",
-    quote: "Hard choices, easy life. Easy choices, hard life.",
+    quote: "Easy choices, hard life. Hard choices, easy life.",
     author: "Jerzy Gregorek",
     source: "The Happy Body",
     daily_actionable_insight: "Make the harder choice in your next decision—whether it's what to eat, or choosing to work instead of scrolling."
@@ -116,12 +116,12 @@ const quotesData = [
     category: "Precision Communication",
     quote: "Silence is one of the most powerful communication tools you have.",
     author: "Unknown",
-    source: "Negotiation Tactics",
+    source: "",
     daily_actionable_insight: "After asking a question or making a strong point, pause for 3 seconds instead of filling the silence."
   },
   {
     id: 16,
-    category: "Lateral Thinking",
+    category: "Strategic Thinking",
     quote: "Thinking like a freak means putting away your moral compass—because it's hard to see a problem clearly if you've already decided what to do about it.",
     author: "Steven Levitt & Stephen Dubner",
     source: "Think Like a Freak",
@@ -129,7 +129,7 @@ const quotesData = [
   },
   {
     id: 17,
-    category: "Lateral Thinking",
+    category: "Strategic Thinking",
     quote: "Don't listen to what people say; watch what they do.",
     author: "Steven Levitt & Stephen Dubner",
     source: "Think Like a Freak",
@@ -137,7 +137,7 @@ const quotesData = [
   },
   {
     id: 18,
-    category: "Lateral Thinking",
+    category: "Strategic Thinking",
     quote: "If you want to understand how a system works, look at the incentives.",
     author: "Charlie Munger",
     source: "Poor Charlie's Almanack",
@@ -145,7 +145,7 @@ const quotesData = [
   },
   {
     id: 19,
-    category: "Lateral Thinking",
+    category: "Strategic Thinking",
     quote: "A problem well stated is a problem half solved.",
     author: "Charles Kettering",
     source: "Innovation Philosophy",
@@ -153,7 +153,7 @@ const quotesData = [
   },
   {
     id: 20,
-    category: "Lateral Thinking",
+    category: "Strategic Thinking",
     quote: "Sometimes the best way to solve a complex problem is to redefine it.",
     author: "Rory Sutherland",
     source: "Alchemy",

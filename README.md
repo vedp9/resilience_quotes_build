@@ -56,9 +56,10 @@ Getting the engine running locally takes less than 30 seconds.
    cd resilience-engine
    ```
 3. **Launch the application:**
-   Because this project relies on vanilla web technologies, no build step or `npm install` is required. You can simply double-click `index.html` to open it in your browser. 
+   > [!WARNING]
+   > **LOCAL SERVER REQUIRED:** Do not open `index.html` directly via `file://`. This app utilizes browser features (like `html2canvas`) and ES modules that require a local server to avoid CORS (Cross-Origin Resource Sharing) and security origin restrictions. 
    
-   *For the best experience (and to prevent local CORS issues when downloading images), run a local server:*
+   *Please use a local server like VS Code Live Server or one of the commands below:*
    ```bash
    # Using Python 3
    python3 -m http.server 3000
