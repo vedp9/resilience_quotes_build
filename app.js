@@ -10,10 +10,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const openBookmarksBtn = document.getElementById('openBookmarksBtn');
     const closeBookmarksBtn = document.getElementById('closeBookmarksBtn');
     const bookmarksList = document.getElementById('bookmarksList');
-    const navLeftBtn = document.getElementById('navLeftBtn');
-    const navRightBtn = document.getElementById('navRightBtn');
+    const navUpBtn = document.getElementById('navUpBtn');
+    const navDownBtn = document.getElementById('navDownBtn');
     const navArrowsContainer = document.getElementById('navArrowsContainer');
-    const carouselDots = document.getElementById('carouselDots');
 
     // Add Quote Elements
     const openAddQuoteBtn = document.getElementById('openAddQuoteBtn');
@@ -28,6 +27,35 @@ document.addEventListener('DOMContentLoaded', () => {
     const getAllQuotes = () => [...customQuotes, ...quotesData];
     let currentCategory = 'All';
     let filteredQuotes = [...getAllQuotes()];
+
+    // Generate Dynamic Categories
+    const renderCategoryPills = () => {
+        if (!categoryFilters) return;
+        
+        // Extract unique categories from quotesData (as requested)
+        const categories = ["All", ...new Set(quotesData.map(q => q.category))];
+        
+        categoryFilters.innerHTML = categories.map(cat => {
+            const isActive = cat === currentCategory ? 'active' : '';
+            return `<button class="category-pill ${isActive}" data-category="${cat}">${cat}</button>`;
+        }).join('');
+        
+        // Attach click listeners to new pills
+        categoryFilters.querySelectorAll('.category-pill').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                categoryFilters.querySelectorAll('.category-pill').forEach(b => b.classList.remove('active'));
+                e.currentTarget.classList.add('active');
+                
+                currentCategory = e.currentTarget.dataset.category;
+                filteredQuotes = currentCategory === 'All' 
+                    ? [...getAllQuotes()] 
+                    : getAllQuotes().filter(q => q.category === currentCategory);
+                
+                renderQuotes();
+                quotesContainer.scrollTop = 0;
+            });
+        });
+    };
 
     // Helper: Determine glow class
     const getGlowClass = (category) => {
@@ -58,34 +86,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     <!-- Top Bar -->
                     <div class="flex justify-between items-start w-full relative z-20">
-                        <!-- Category & Source -->
                         <div class="flex flex-col gap-1 items-start">
-                            <span class="text-xs font-bold tracking-wider uppercase text-white/50">${quoteObj.category}</span>
+                            <span class="text-[11px] font-bold tracking-wider uppercase text-white/50">${quoteObj.category}</span>
                             ${isCustomBadge}
                         </div>
                     </div>
 
-                    <!-- Main Quote -->
-                    <div class="flex-1 flex flex-col justify-center my-4">
-                        <p class="card-quote-text text-white">"${quoteObj.quote}"</p>
+                    <!-- Middle: Quote -->
+                    <div class="flex-1 flex flex-col justify-center my-2">
+                        <p class="card-quote-text text-lg lg:text-2xl font-semibold leading-snug text-white">"${quoteObj.quote}"</p>
                     </div>
 
-                    <!-- Author & Insight -->
-                    <div class="flex flex-col gap-4">
+                    <!-- Bottom: Author & Insight -->
+                    <div class="flex flex-col gap-3">
                         <div>
-                            <p class="text-lg font-semibold text-white">${quoteObj.author}</p>
-                            ${quoteObj.source ? `<p class="text-sm text-white/50">${quoteObj.source}</p>` : ''}
+                            <p class="text-base font-semibold text-white">${quoteObj.author}</p>
+                            ${quoteObj.source ? `<p class="text-[11px] text-white/50">${quoteObj.source}</p>` : ''}
                         </div>
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/10 hidden sm:block">
-                            <p class="text-xs font-bold uppercase text-white/50 mb-1 flex items-center gap-1">
+                        <div class="bg-white/5 border border-white/10 rounded-xl p-3 mb-2">
+                            <p class="text-[10px] font-bold uppercase text-white/50 mb-1 flex items-center gap-1">
                                 <i data-lucide="zap" class="w-3 h-3"></i> Daily Action
                             </p>
-                            <p class="text-sm text-white/90 leading-relaxed">${quoteObj.daily_actionable_insight}</p>
+                            <p class="text-sm text-white/90 leading-tight">${quoteObj.daily_actionable_insight}</p>
                         </div>
                     </div>
                     
-                    <!-- Action Bar (Bottom) -->
-                    <div class="flex items-center justify-end gap-2 mt-4 pt-4 border-t border-white/10 action-container transition-opacity duration-200 w-full z-20">
+                    <!-- Footer: Action Bar -->
+                    <div class="flex items-center justify-end gap-2 mt-2 pt-3 border-t border-white/10 action-container transition-opacity duration-200 w-full z-20">
                         ${quoteObj.isCustom ? `
                         <button class="delete-quote-btn p-3 rounded-full bg-white/5 hover:bg-red-500/20 text-white/50 hover:text-red-400 transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]" data-id="${quoteObj.id}" title="Delete Quote">
                             <i data-lucide="trash-2" class="w-5 h-5"></i>
@@ -109,14 +136,23 @@ document.addEventListener('DOMContentLoaded', () => {
             quotesContainer.appendChild(cardWrapper);
         });
 
-        // Generate Dots
-        if (carouselDots) {
-            carouselDots.innerHTML = '';
-            filteredQuotes.forEach((_, i) => {
-                const dot = document.createElement('div');
-                dot.className = `carousel-dot ${i === 0 ? 'active' : ''}`;
-                carouselDots.appendChild(dot);
+        // Initialize 3D scroll observer for mobile
+        if (window.innerWidth < 1024) {
+            const cards = document.querySelectorAll('.quote-card');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('card-3d-active');
+                    } else {
+                        entry.target.classList.remove('card-3d-active');
+                    }
+                });
+            }, {
+                root: quotesContainer,
+                threshold: 0.6 // Trigger when 60% of card is visible
             });
+
+            cards.forEach(card => observer.observe(card));
         }
 
         // Re-init newly added icons
@@ -158,13 +194,13 @@ document.addEventListener('DOMContentLoaded', () => {
                         wrapper.style.minWidth = '0';
                         wrapper.style.width = '0';
                         wrapper.style.flex = '0';
+                        wrapper.style.height = '0';
                         wrapper.style.margin = '0';
                         wrapper.style.padding = '0';
                     }
                     setTimeout(() => {
                         wrapper.remove();
                         updateNavArrowsVisibility();
-                        updateDots();
                     }, 300);
                 }
             });
@@ -290,27 +326,6 @@ document.addEventListener('DOMContentLoaded', () => {
         bookmarkCountEl.textContent = bookmarkedIds.length;
     };
 
-    // Category Filtering
-    categoryFilters.addEventListener('click', (e) => {
-        if (e.target.classList.contains('category-pill')) {
-            // Update active styling
-            document.querySelectorAll('.category-pill').forEach(pill => pill.classList.remove('active'));
-            e.target.classList.add('active');
-
-            currentCategory = e.target.dataset.category;
-            
-            if (currentCategory === 'All') {
-                filteredQuotes = [...getAllQuotes()];
-            } else {
-                filteredQuotes = getAllQuotes().filter(q => q.category === currentCategory);
-            }
-            
-            renderQuotes();
-            // Reset scroll position
-            quotesContainer.scrollTop = 0;
-        }
-    });
-
     // Bookmarks Modal Logic
     const renderBookmarksModal = () => {
         bookmarksList.innerHTML = '';
@@ -431,92 +446,71 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Horizontal Mobile Scrolling Arrows & Dots
+    // Vertical Mobile Scrolling Arrows
     const updateNavArrowsVisibility = () => {
         if (window.innerWidth >= 1024) {
             if(navArrowsContainer) navArrowsContainer.style.display = 'none';
-            if(carouselDots) carouselDots.style.display = 'none';
             return;
         }
         if(navArrowsContainer) navArrowsContainer.style.display = 'flex';
-        if(carouselDots) carouselDots.style.display = 'flex';
         
-        // Hide Left if at start
-        if (navLeftBtn) {
-            if (quotesContainer.scrollLeft <= 10) {
-                navLeftBtn.style.opacity = '0.3';
-                navLeftBtn.style.pointerEvents = 'none';
+        // Hide Up if at start
+        if (navUpBtn) {
+            if (quotesContainer.scrollTop <= 10) {
+                navUpBtn.style.opacity = '0.3';
+                navUpBtn.style.pointerEvents = 'none';
             } else {
-                navLeftBtn.style.opacity = '1';
-                navLeftBtn.style.pointerEvents = 'auto';
+                navUpBtn.style.opacity = '1';
+                navUpBtn.style.pointerEvents = 'auto';
             }
         }
 
-        // Hide Right if at end
-        if (navRightBtn) {
-            const maxScroll = quotesContainer.scrollWidth - quotesContainer.clientWidth;
-            if (quotesContainer.scrollLeft >= maxScroll - 10) {
-                navRightBtn.style.opacity = '0.3';
-                navRightBtn.style.pointerEvents = 'none';
+        // Hide Down if at end
+        if (navDownBtn) {
+            const maxScroll = quotesContainer.scrollHeight - quotesContainer.clientHeight;
+            if (quotesContainer.scrollTop >= maxScroll - 10) {
+                navDownBtn.style.opacity = '0.3';
+                navDownBtn.style.pointerEvents = 'none';
             } else {
-                navRightBtn.style.opacity = '1';
-                navRightBtn.style.pointerEvents = 'auto';
+                navDownBtn.style.opacity = '1';
+                navDownBtn.style.pointerEvents = 'auto';
             }
         }
-    };
-
-    const updateDots = () => {
-        if (window.innerWidth >= 1024 || !carouselDots) return;
-        const containerWidth = quotesContainer.clientWidth;
-        const currentScroll = quotesContainer.scrollLeft;
-        
-        // Calculate active index based on scroll position
-        const activeIndex = Math.round(currentScroll / containerWidth);
-        
-        const dots = carouselDots.querySelectorAll('.carousel-dot');
-        dots.forEach((dot, index) => {
-            if (index === activeIndex) {
-                dot.classList.add('active');
-            } else {
-                dot.classList.remove('active');
-            }
-        });
     };
 
     quotesContainer.addEventListener('scroll', () => {
         requestAnimationFrame(() => {
             updateNavArrowsVisibility();
-            updateDots();
         });
     });
 
     window.addEventListener('resize', () => {
         updateNavArrowsVisibility();
-        updateDots();
     });
 
     const scrollCard = (direction) => {
-        const containerWidth = quotesContainer.clientWidth;
-        const currentScroll = quotesContainer.scrollLeft;
+        const containerHeight = quotesContainer.clientHeight;
+        const currentScroll = quotesContainer.scrollTop;
         
-        if (direction === 'right') {
+        if (direction === 'down') {
             quotesContainer.scrollTo({
-                left: currentScroll + containerWidth,
+                top: currentScroll + containerHeight,
                 behavior: 'smooth'
             });
         } else {
             quotesContainer.scrollTo({
-                left: currentScroll - containerWidth,
+                top: currentScroll - containerHeight,
                 behavior: 'smooth'
             });
         }
     };
 
-    if (navLeftBtn) navLeftBtn.addEventListener('click', () => scrollCard('left'));
-    if (navRightBtn) navRightBtn.addEventListener('click', () => scrollCard('right'));
+    if (navUpBtn) navUpBtn.addEventListener('click', () => scrollCard('up'));
+    if (navDownBtn) navDownBtn.addEventListener('click', () => scrollCard('down'));
 
     // Initialize
     updateBookmarkCount();
+    renderCategoryPills();
     renderQuotes();
     
     // Initial check for arrow visibility

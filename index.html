@@ -59,11 +59,7 @@
         <!-- Category Filter Pills -->
         <div class="w-full overflow-x-auto hide-scrollbar border-b border-white/5 pb-2 pt-1 px-4">
             <div class="flex gap-2 min-w-max mx-auto max-w-7xl" id="categoryFilters">
-                <button class="category-pill active" data-category="All">All</button>
-                <button class="category-pill" data-category="Mental Toughness">Mental Toughness</button>
-                <button class="category-pill" data-category="Compounding & Growth">Compounding & Growth</button>
-                <button class="category-pill" data-category="Precision Communication">Precision Communication</button>
-                <button class="category-pill" data-category="Lateral Thinking">Lateral Thinking</button>
+                <!-- Pills injected via JS -->
             </div>
         </div>
     </header>
@@ -75,23 +71,18 @@
     </main>
 
     <!-- Floating Navigation Arrows (Mobile Only) -->
-    <div class="fixed left-4 right-4 top-1/2 -translate-y-1/2 lg:hidden flex justify-between z-30 opacity-70 pointer-events-none transition-opacity duration-300"
+    <div class="fixed right-4 bottom-8 lg:hidden flex flex-col gap-3 z-30 opacity-70 pointer-events-none transition-opacity duration-300"
         id="navArrowsContainer">
-        <button id="navLeftBtn"
+        <button id="navUpBtn"
             class="pointer-events-auto p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/10 active:scale-95 transition-all text-white"
-            aria-label="Swipe Left">
-            <i data-lucide="chevron-left" class="w-6 h-6"></i>
+            aria-label="Scroll Up">
+            <i data-lucide="chevron-up" class="w-6 h-6"></i>
         </button>
-        <button id="navRightBtn"
+        <button id="navDownBtn"
             class="pointer-events-auto p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/10 active:scale-95 transition-all text-white"
-            aria-label="Swipe Right">
-            <i data-lucide="chevron-right" class="w-6 h-6"></i>
+            aria-label="Scroll Down">
+            <i data-lucide="chevron-down" class="w-6 h-6"></i>
         </button>
-    </div>
-
-    <!-- Carousel Dots (Mobile Only) -->
-    <div id="carouselDots" class="fixed bottom-4 left-0 right-0 lg:hidden flex justify-center gap-2 z-30 pointer-events-none px-4">
-        <!-- Dots injected here -->
     </div>
 
     <!-- Add Quote Modal Overlay -->

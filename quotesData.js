@@ -158,5 +158,5 @@ const quotesData = [
     author: "Rory Sutherland",
     source: "Alchemy",
     daily_actionable_insight: "Try solving the opposite of your problem (inversion) to see what new ideas emerge."
-  }
+  },
 ];
