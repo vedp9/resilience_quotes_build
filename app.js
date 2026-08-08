@@ -45,6 +45,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const navRightBtn = document.getElementById('navRightBtn');
     const navArrowsContainer = document.getElementById('navArrowsContainer');
 
+    // Badge / Collapsible slider elements
+    const categorySliderWrap = document.getElementById('categorySliderWrap');
+    const badgeRow = document.getElementById('badgeRow');
+    const activeCategoryBadge = document.getElementById('activeCategoryBadge');
+    const activeCategoryLabel = document.getElementById('activeCategoryLabel');
+    const badgeDismissBtn = document.getElementById('badgeDismissBtn');
+
     // Add Quote Elements
     const openAddQuoteBtn = document.getElementById('openAddQuoteBtn');
     const closeAddQuoteBtn = document.getElementById('closeAddQuoteBtn');
@@ -59,6 +66,72 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentCategory = 'All';
     let filteredQuotes = [...getAllQuotes()];
     let currentCardIndex = 0;
+
+    // ── Measure header height and set main paddingTop + CSS var (mobile only) ──
+    const recalcHeaderOffset = () => {
+        if (window.innerWidth >= 1025) {
+            // Desktop: CSS handles pt via lg:pt-32
+            quotesContainer.style.paddingTop = '';
+            quotesContainer.style.removeProperty('--card-safe-top');
+            return;
+        }
+        const header = document.querySelector('header');
+        if (header) {
+            const headerH = header.clientHeight;
+            // Set paddingTop on <main> so normal-flow children respect it
+            quotesContainer.style.paddingTop = headerH + 'px';
+            // Set CSS custom property consumed by .quote-card-wrapper padding-top
+            // Extra 20px = minimum safe visual gap below category bar
+            quotesContainer.style.setProperty('--card-safe-top', (headerH + 20) + 'px');
+        }
+    };
+
+    // ── Collapse slider → show badge (mobile) ──
+    const collapseSlider = (categoryName) => {
+        if (window.innerWidth >= 1025) return;
+        if (categorySliderWrap) categorySliderWrap.classList.add('slider-collapsed');
+        if (badgeRow) badgeRow.classList.add('badge-row-visible');
+        if (activeCategoryBadge) activeCategoryBadge.classList.add('badge-visible');
+        if (activeCategoryLabel) activeCategoryLabel.textContent = 'Category: ' + categoryName;
+        // Re-measure header so main container top offset stays correct
+        requestAnimationFrame(recalcHeaderOffset);
+    };
+
+    // ── Expand slider → hide badge (mobile) ──
+    const expandSlider = () => {
+        if (categorySliderWrap) categorySliderWrap.classList.remove('slider-collapsed');
+        if (badgeRow) badgeRow.classList.remove('badge-row-visible');
+        if (activeCategoryBadge) activeCategoryBadge.classList.remove('badge-visible');
+        // Reset filter to All
+        currentCategory = 'All';
+        currentCardIndex = 0;
+        filteredQuotes = [...getAllQuotes()];
+        renderCategoryPills();
+        renderQuotes();
+        requestAnimationFrame(recalcHeaderOffset);
+    };
+
+    // Wire up badge dismiss
+    if (badgeDismissBtn) {
+        badgeDismissBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            expandSlider();
+        });
+    }
+    // Tapping the badge itself (not the × button) also re-expands
+    if (activeCategoryBadge) {
+        activeCategoryBadge.addEventListener('click', (e) => {
+            if (e.target === badgeDismissBtn || badgeDismissBtn.contains(e.target)) return;
+            expandSlider();
+        });
+        // Keyboard support for div[role=button]
+        activeCategoryBadge.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                expandSlider();
+            }
+        });
+    }
 
     // Generate Dynamic Categories
     const renderCategoryPills = () => {
@@ -79,20 +152,24 @@ document.addEventListener('DOMContentLoaded', () => {
                 e.currentTarget.classList.add('active');
                 
                 currentCategory = e.currentTarget.dataset.category;
-                
+
                 const updateFeed = () => {
                     currentCardIndex = 0;
                     if (currentCategory === 'All') {
                         filteredQuotes = [...getAllQuotes()];
                     } else {
-                        filteredQuotes = getAllQuotes().filter(q => 
-                            q.category === currentCategory || 
+                        filteredQuotes = getAllQuotes().filter(q =>
+                            q.category === currentCategory ||
                             (currentCategory.toUpperCase() === 'RESILIENCE' && q.category === 'Mental Toughness') ||
                             (currentCategory.toUpperCase() === 'MENTAL TOUGHNESS' && q.category.toUpperCase() === 'RESILIENCE')
                         );
                     }
                     renderQuotes();
                     if (window.innerWidth >= 1025) quotesContainer.scrollTop = 0;
+                    // Collapse slider on mobile when a specific category is chosen
+                    if (window.innerWidth < 1025 && currentCategory !== 'All') {
+                        collapseSlider(currentCategory);
+                    }
                 };
 
                 updateFeed();
@@ -126,9 +203,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
             cardWrapper.innerHTML = `
                 <div class="quote-card ${glowClass} relative group" data-id="${quoteObj.id}">
-                    
+
+                    <!-- Absolute top-right delete button (custom cards only) -->
+                    ${quoteObj.isCustom ? `
+                    <button
+                        class="card-delete-btn"
+                        data-id="${quoteObj.id}"
+                        type="button"
+                        title="Delete this quote"
+                        aria-label="Delete custom quote"
+                    >
+                        <i data-lucide="trash-2" class="w-3.5 h-3.5" aria-hidden="true"></i>
+                    </button>
+                    ` : ''}
+
                     <!-- Top Bar -->
-                    <div class="flex justify-between items-start w-full relative z-20">
+                    <div class="card-top-bar flex justify-between items-start w-full relative z-20">
                         <div class="flex flex-col gap-1 items-start">
                             <span class="text-[11px] font-bold tracking-wider uppercase text-white/50">${quoteObj.category}</span>
                             ${isCustomBadge}
@@ -157,13 +247,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     
-                    <!-- Footer: Action Bar -->
+                    <!-- Footer: Action Bar (download + bookmark only) -->
                     <div class="flex items-center justify-end gap-2 mt-2 pt-3 border-t border-white/10 action-container transition-opacity duration-200 w-full z-20">
-                        ${quoteObj.isCustom ? `
-                        <button class="delete-quote-btn p-3 rounded-full bg-white/5 hover:bg-red-500/20 text-white/50 hover:text-red-400 transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]" data-id="${quoteObj.id}" title="Delete Quote" aria-label="Delete Quote">
-                            <i data-lucide="trash-2" class="w-5 h-5" aria-hidden="true"></i>
-                        </button>
-                        ` : ''}
                         <button class="download-quote-btn p-3 rounded-full bg-white/5 hover:bg-white/20 text-white/50 hover:text-white transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]" data-id="${quoteObj.id}" title="Download as Image" aria-label="Download as Image">
                             <i data-lucide="download" class="w-5 h-5" aria-hidden="true"></i>
                         </button>
@@ -197,43 +282,62 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Card Action Logic (Delete & Download)
     const attachCardActionListeners = () => {
-        document.querySelectorAll('.delete-quote-btn').forEach(btn => {
+        document.querySelectorAll('.card-delete-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
-                e.stopPropagation(); 
+                e.stopPropagation();
                 const id = parseInt(e.currentTarget.dataset.id);
-                
-                // Remove from customQuotes
+                const isMobile = window.innerWidth < 1025;
+
+                // Guard: only custom quotes should ever reach here
+                const quoteToDelete = customQuotes.find(q => q.id === id);
+                if (!quoteToDelete) return;
+
+                // Remove from customQuotes array and persist
                 customQuotes = customQuotes.filter(q => q.id !== id);
                 localStorage.setItem('resilience_customQuotes', JSON.stringify(customQuotes));
-                
-                // If bookmarked, remove from bookmarks
+
+                // If bookmarked, remove from bookmarks too
                 const bookmarkIndex = bookmarkedIds.indexOf(id);
                 if (bookmarkIndex > -1) {
                     bookmarkedIds.splice(bookmarkIndex, 1);
                     saveBookmarks();
                 }
 
-                // Update filtered view state
+                // Capture the index of the deleted card in the current filtered list
+                const deletedIndex = filteredQuotes.findIndex(q => q.id === id);
+
+                // Remove from filteredQuotes
                 filteredQuotes = filteredQuotes.filter(q => q.id !== id);
-                
-                // Animate removal from DOM
+
+                // On mobile: re-anchor currentCardIndex so the stack doesn't break
+                if (isMobile) {
+                    if (filteredQuotes.length === 0) {
+                        currentCardIndex = 0;
+                    } else if (deletedIndex <= currentCardIndex) {
+                        // Deleted card was at or before the active card — shift index back
+                        currentCardIndex = Math.max(0, currentCardIndex - 1);
+                    }
+                    // If deleted card was after active card, index stays the same
+                }
+
+                // Animate the card wrapper out, then remove and re-render the stack
                 const wrapper = document.querySelector(`.quote-card-wrapper[data-id="${id}"]`);
                 if (wrapper) {
-                    wrapper.style.transition = 'opacity 0.3s ease, transform 0.3s ease, width 0.3s ease, margin 0.3s ease, padding 0.3s ease';
+                    wrapper.style.transition = 'opacity 0.28s ease, transform 0.28s ease';
                     wrapper.style.opacity = '0';
-                    wrapper.style.transform = 'scale(0.9)';
-                    
-                    if (window.innerWidth < 1024) {
-                        wrapper.style.minWidth = '0';
-                        wrapper.style.width = '0';
-                        wrapper.style.flex = '0';
-                        wrapper.style.height = '0';
-                        wrapper.style.margin = '0';
-                        wrapper.style.padding = '0';
-                    }
+                    wrapper.style.transform = isMobile
+                        ? 'scale(0.88) translateY(-16px)'
+                        : 'scale(0.92)';
+
                     setTimeout(() => {
                         wrapper.remove();
-                        renderCategoryPills(); // Real-time category sync on delete
+
+                        if (isMobile) {
+                            // Re-render the full mobile card stack with updated state
+                            renderQuotes();
+                        }
+
+                        renderCategoryPills();
                         updateNavArrowsVisibility();
                     }, 300);
                 }
@@ -648,6 +752,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.addEventListener('resize', () => {
         updateCardVisibility();
+        recalcHeaderOffset();
     });
 
     // Keyboard Accessibility (Left/Right arrows)
@@ -673,7 +778,13 @@ document.addEventListener('DOMContentLoaded', () => {
     updateBookmarkCount();
     renderCategoryPills();
     renderQuotes();
-    
+
+    // Set initial header offset for mobile
+    recalcHeaderOffset();
+
+    // Recalc after fonts/layout settle
+    setTimeout(recalcHeaderOffset, 150);
+
     // Initial check for arrow visibility
     setTimeout(updateNavArrowsVisibility, 100);
 });
