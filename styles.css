@@ -1,0 +1,207 @@
+/* Base Resets & Variables */
+:root {
+    --glow-mental: rgba(225, 29, 72, 0.15);
+    --glow-growth: rgba(16, 185, 129, 0.15);
+    --glow-comm: rgba(59, 130, 246, 0.15);
+    --glow-lateral: rgba(245, 158, 11, 0.15);
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    overscroll-behavior-y: none;
+}
+
+@media (max-width: 1024px) {
+    html, body {
+        height: 100%;
+    }
+}
+
+@media (min-width: 1025px) {
+    html, body {
+        height: auto;
+        min-height: 100vh;
+        overflow-y: auto;
+    }
+}
+
+.pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 2rem);
+}
+
+.mt-safe {
+    margin-top: env(safe-area-inset-top, 0);
+}
+
+/* Hide Scrollbar */
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+/* Category Pills */
+.category-pill {
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    white-space: nowrap;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--textSecondary);
+    transition: all 0.2s ease;
+}
+
+.category-pill.active {
+    background: rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* Mobile Scroll Snap (default) */
+.mobile-snap-container {
+    scroll-snap-type: y mandatory;
+    scroll-behavior: smooth;
+    /* Fix for iOS momentum scrolling */
+    -webkit-overflow-scrolling: touch;
+}
+
+.quote-card-wrapper {
+    scroll-snap-align: start;
+    height: calc(100vh - 104px); /* Adjusting for header height */
+    padding: 1rem 1rem 2rem 1rem;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    will-change: transform;
+    touch-action: pan-y;
+}
+
+/* Card Styling */
+.quote-card {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    max-width: 500px;
+    background: #161618;
+    border-radius: 1.5rem;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow: hidden;
+    user-select: none;
+    box-shadow: 0 20px 40px -20px rgba(0,0,0,0.5);
+    transition: transform 0.2s ease;
+}
+
+/* Desktop Layout Overrides */
+@media (min-width: 1024px) {
+    .mobile-snap-container {
+        scroll-snap-type: none;
+        height: auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1.5rem;
+        padding: 8rem 2rem 2rem 2rem;
+    }
+
+    .quote-card-wrapper {
+        height: 100%;
+        min-height: 400px;
+        padding: 0;
+        scroll-snap-align: none;
+    }
+    
+    .quote-card {
+        max-width: none;
+        transition: transform 0.3s ease, border-color 0.3s ease;
+    }
+    
+    .quote-card:hover {
+        transform: translateY(-4px);
+        border-color: rgba(255, 255, 255, 0.15);
+    }
+}
+
+/* Dynamic Glow Classes */
+.glow-mental {
+    background: radial-gradient(circle at top right, var(--glow-mental) 0%, transparent 50%), #161618;
+}
+.glow-growth {
+    background: radial-gradient(circle at top right, var(--glow-growth) 0%, transparent 50%), #161618;
+}
+.glow-comm {
+    background: radial-gradient(circle at top right, var(--glow-comm) 0%, transparent 50%), #161618;
+}
+.glow-lateral {
+    background: radial-gradient(circle at top right, var(--glow-lateral) 0%, transparent 50%), #161618;
+}
+
+/* Heart Animation */
+.heart-anim-container {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 10;
+    opacity: 0;
+}
+
+.heart-anim-container.animate {
+    animation: heartPop 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes heartPop {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0);
+    }
+    15% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+    30% {
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    45% {
+        transform: translate(-50%, -50%) scale(1.1);
+    }
+    80% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+/* Typography styles inside card */
+.card-quote-text {
+    font-size: clamp(1.25rem, 5vw, 1.75rem);
+    line-height: 1.4;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+}
+
+/* Bookmark item */
+.bookmark-item {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 1rem;
+    padding: 1.5rem;
+}

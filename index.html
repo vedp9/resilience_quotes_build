@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Anyone can't hurt me Engine</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        background: '#0c0c0e',
+                        card: '#161618',
+                        textPrimary: '#ffffff',
+                        textSecondary: '#a1a1a6'
+                    },
+                    fontFamily: {
+                        sans: ['-apple-system', 'BlinkMacSystemFont', 'SF Pro Display', 'SF Pro Text', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="bg-background text-textPrimary font-sans antialiased overflow-hidden lg:overflow-auto lg:min-h-screen selection:bg-gray-700">
+
+    <!-- Header -->
+    <header class="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-md border-b border-white/10">
+        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+            <h1 class="text-xl font-bold tracking-tight">RESILIENCE</h1>
+            <div class="flex items-center gap-3">
+                <button id="openAddQuoteBtn"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium border border-white/10">
+                    <i data-lucide="plus" class="w-4 h-4 text-white"></i>
+                    <span class="hidden sm:inline">Add Quote</span>
+                </button>
+                <button id="openBookmarksBtn"
+                    class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 hover:bg-white/10 transition-colors text-sm font-medium border border-white/10">
+                    <i data-lucide="heart" class="w-4 h-4 text-red-500 fill-current"></i>
+                    <span>Saved (<span id="bookmarkCount">0</span>)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Category Filter Pills -->
+        <div class="w-full overflow-x-auto hide-scrollbar border-b border-white/5 pb-2 pt-1 px-4">
+            <div class="flex gap-2 min-w-max mx-auto max-w-7xl" id="categoryFilters">
+                <button class="category-pill active" data-category="All">All</button>
+                <button class="category-pill" data-category="Mental Toughness">Mental Toughness</button>
+                <button class="category-pill" data-category="Compounding & Growth">Compounding & Growth</button>
+                <button class="category-pill" data-category="Precision Communication">Precision Communication</button>
+                <button class="category-pill" data-category="Lateral Thinking">Lateral Thinking</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main id="quotesContainer"
+        class="mobile-snap-container pt-[104px] lg:pt-32 pb-safe lg:pb-8 max-w-7xl mx-auto w-full h-screen lg:h-auto overflow-y-scroll lg:overflow-visible">
+        <!-- Quotes will be injected here -->
+    </main>
+
+    <!-- Floating Navigation Arrows (Mobile Only) -->
+    <div class="fixed right-4 bottom-8 lg:hidden flex flex-col gap-3 z-30 opacity-70 pointer-events-none transition-opacity duration-300"
+        id="navArrowsContainer">
+        <button id="navUpBtn"
+            class="pointer-events-auto p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/10 active:scale-95 transition-all text-white"
+            aria-label="Scroll Up">
+            <i data-lucide="chevron-up" class="w-6 h-6"></i>
+        </button>
+        <button id="navDownBtn"
+            class="pointer-events-auto p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/10 active:scale-95 transition-all text-white"
+            aria-label="Scroll Down">
+            <i data-lucide="chevron-down" class="w-6 h-6"></i>
+        </button>
+    </div>
+
+    <!-- Add Quote Modal Overlay -->
+    <div id="addQuoteModal"
+        class="fixed inset-0 z-50 bg-background/90 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex flex-col items-center justify-center p-4">
+        <div class="bg-card border border-white/10 rounded-2xl w-full max-w-lg overflow-hidden flex flex-col shadow-2xl mt-safe">
+            <div class="flex items-center justify-between p-4 border-b border-white/10">
+                <h2 class="text-xl font-bold">Personalize</h2>
+                <button id="closeAddQuoteBtn" class="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+            <form id="addQuoteForm" class="p-6 space-y-4 flex-1 overflow-y-auto max-h-[70vh]">
+                <div>
+                    <label class="block text-sm font-medium text-textSecondary mb-1">Quote Text *</label>
+                    <textarea id="customQuoteText" required rows="3" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-white/30 resize-none" placeholder="Enter the inspiring quote..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-textSecondary mb-1">Author & Source *</label>
+                    <input type="text" id="customQuoteAuthor" required class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-white/30" placeholder="e.g., David Goggins — Can't Hurt Me">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-textSecondary mb-1">Category *</label>
+                    <select id="customQuoteCategory" required class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-white/30 appearance-none">
+                        <option value="Mental Toughness" class="bg-card text-white">Mental Toughness</option>
+                        <option value="Compounding & Growth" class="bg-card text-white">Compounding & Growth</option>
+                        <option value="Precision Communication" class="bg-card text-white">Precision Communication</option>
+                        <option value="Lateral Thinking" class="bg-card text-white">Lateral Thinking</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-textSecondary mb-1">Actionable Insight (Optional)</label>
+                    <textarea id="customQuoteInsight" rows="2" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:outline-none focus:border-white/30 resize-none" placeholder="What daily habit or action will you take from this?"></textarea>
+                </div>
+                <div class="pt-4 flex gap-3">
+                    <button type="button" id="cancelAddQuoteBtn" class="flex-1 py-3 rounded-xl bg-white/5 hover:bg-white/10 transition-colors font-medium">Cancel</button>
+                    <button type="submit" class="flex-1 py-3 rounded-xl bg-white text-black hover:bg-gray-200 transition-colors font-bold">Save Quote</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Bookmarks Modal Overlay -->
+    <div id="bookmarksModal"
+        class="fixed inset-0 z-50 bg-background/90 backdrop-blur-xl hidden opacity-0 transition-opacity duration-300 flex flex-col">
+        <div class="flex items-center justify-between p-4 border-b border-white/10 mt-safe">
+            <h2 class="text-xl font-bold">Saved Insights</h2>
+            <button id="closeBookmarksBtn" class="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div id="bookmarksList" class="flex-1 overflow-y-auto p-4 space-y-4 pb-safe">
+            <!-- Bookmarked items injected here -->
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="quotesData.js"></script>
+    <script src="app.js"></script>
+</body>
+
+</html>
