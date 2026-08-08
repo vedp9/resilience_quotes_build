@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
             carouselDots.innerHTML = '';
             filteredQuotes.forEach((_, i) => {
                 const dot = document.createElement('div');
-                dot.className = \`carousel-dot \${i === 0 ? 'active' : ''}\`;
+                dot.className = `carousel-dot ${i === 0 ? 'active' : ''}`;
                 carouselDots.appendChild(dot);
             });
         }
