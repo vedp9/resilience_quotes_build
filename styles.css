@@ -73,22 +73,39 @@ html, body {
 @media (max-width: 1024px) {
     /* Mobile Scroll Snap */
     .mobile-snap-container {
-        scroll-snap-type: y mandatory;
+        display: flex;
+        flex-direction: row;
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
         scroll-behavior: smooth;
         /* Fix for iOS momentum scrolling */
         -webkit-overflow-scrolling: touch;
     }
 
     .quote-card-wrapper {
-        scroll-snap-align: start;
+        flex: 0 0 100%;
+        scroll-snap-align: center;
         height: calc(100vh - 104px); /* Adjusting for header height */
-        padding: 1rem 1rem 2rem 1rem;
+        padding: 1rem 1rem 4rem 1rem; /* Space for dots/action bar */
         width: 100%;
         display: flex;
         justify-content: center;
         align-items: center;
         will-change: transform;
-        touch-action: pan-y;
+        touch-action: pan-x;
+    }
+
+    .carousel-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        transition: background 0.3s ease, transform 0.3s ease;
+    }
+    .carousel-dot.active {
+        background: rgba(255, 255, 255, 0.9);
+        transform: scale(1.3);
     }
 }
 

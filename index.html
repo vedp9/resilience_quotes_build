@@ -70,23 +70,28 @@
 
     <!-- Main Content Container -->
     <main id="quotesContainer"
-        class="mobile-snap-container pt-[104px] lg:pt-32 pb-safe lg:pb-8 max-w-7xl mx-auto w-full h-screen lg:h-auto overflow-y-scroll lg:overflow-visible">
+        class="mobile-snap-container pt-[104px] lg:pt-32 pb-safe lg:pb-8 max-w-7xl mx-auto w-full h-screen lg:h-auto lg:overflow-visible">
         <!-- Quotes will be injected here -->
     </main>
 
     <!-- Floating Navigation Arrows (Mobile Only) -->
-    <div class="fixed right-4 bottom-8 lg:hidden flex flex-col gap-3 z-30 opacity-70 pointer-events-none transition-opacity duration-300"
+    <div class="fixed left-4 right-4 top-1/2 -translate-y-1/2 lg:hidden flex justify-between z-30 opacity-70 pointer-events-none transition-opacity duration-300"
         id="navArrowsContainer">
-        <button id="navUpBtn"
+        <button id="navLeftBtn"
             class="pointer-events-auto p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/10 active:scale-95 transition-all text-white"
-            aria-label="Scroll Up">
-            <i data-lucide="chevron-up" class="w-6 h-6"></i>
+            aria-label="Swipe Left">
+            <i data-lucide="chevron-left" class="w-6 h-6"></i>
         </button>
-        <button id="navDownBtn"
+        <button id="navRightBtn"
             class="pointer-events-auto p-3 rounded-full bg-white/10 backdrop-blur-md border border-white/10 active:scale-95 transition-all text-white"
-            aria-label="Scroll Down">
-            <i data-lucide="chevron-down" class="w-6 h-6"></i>
+            aria-label="Swipe Right">
+            <i data-lucide="chevron-right" class="w-6 h-6"></i>
         </button>
+    </div>
+
+    <!-- Carousel Dots (Mobile Only) -->
+    <div id="carouselDots" class="fixed bottom-4 left-0 right-0 lg:hidden flex justify-center gap-2 z-30 pointer-events-none px-4">
+        <!-- Dots injected here -->
     </div>
 
     <!-- Add Quote Modal Overlay -->

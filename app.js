@@ -10,9 +10,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const openBookmarksBtn = document.getElementById('openBookmarksBtn');
     const closeBookmarksBtn = document.getElementById('closeBookmarksBtn');
     const bookmarksList = document.getElementById('bookmarksList');
-    const navUpBtn = document.getElementById('navUpBtn');
-    const navDownBtn = document.getElementById('navDownBtn');
+    const navLeftBtn = document.getElementById('navLeftBtn');
+    const navRightBtn = document.getElementById('navRightBtn');
     const navArrowsContainer = document.getElementById('navArrowsContainer');
+    const carouselDots = document.getElementById('carouselDots');
 
     // Add Quote Elements
     const openAddQuoteBtn = document.getElementById('openAddQuoteBtn');
@@ -62,26 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
                             <span class="text-xs font-bold tracking-wider uppercase text-white/50">${quoteObj.category}</span>
                             ${isCustomBadge}
                         </div>
-                        
-                        <!-- Actions -->
-                        <div class="flex items-center gap-2 action-container transition-opacity duration-200">
-                            ${quoteObj.isCustom ? `
-                            <button class="delete-quote-btn p-1.5 rounded-full bg-white/5 hover:bg-red-500/20 text-white/50 hover:text-red-400 transition-colors" data-id="${quoteObj.id}" title="Delete Quote">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
-                            ` : ''}
-                            <button class="download-quote-btn p-1.5 rounded-full bg-white/5 hover:bg-white/20 text-white/50 hover:text-white transition-colors" data-id="${quoteObj.id}" title="Download as Image">
-                                <i data-lucide="download" class="w-4 h-4"></i>
-                            </button>
-                            <!-- Bookmark Indicator -->
-                            <div class="transition-opacity duration-300 ml-1 ${isBookmarked ? 'opacity-100' : 'opacity-0'}">
-                                <i data-lucide="heart" class="w-5 h-5 text-red-500 fill-current bookmark-indicator"></i>
-                            </div>
-                        </div>
                     </div>
 
                     <!-- Main Quote -->
-                    <div class="flex-1 flex flex-col justify-center my-6">
+                    <div class="flex-1 flex flex-col justify-center my-4">
                         <p class="card-quote-text text-white">"${quoteObj.quote}"</p>
                     </div>
 
@@ -91,12 +76,27 @@ document.addEventListener('DOMContentLoaded', () => {
                             <p class="text-lg font-semibold text-white">${quoteObj.author}</p>
                             ${quoteObj.source ? `<p class="text-sm text-white/50">${quoteObj.source}</p>` : ''}
                         </div>
-                        <div class="bg-white/5 p-4 rounded-xl border border-white/10">
+                        <div class="bg-white/5 p-4 rounded-xl border border-white/10 hidden sm:block">
                             <p class="text-xs font-bold uppercase text-white/50 mb-1 flex items-center gap-1">
                                 <i data-lucide="zap" class="w-3 h-3"></i> Daily Action
                             </p>
                             <p class="text-sm text-white/90 leading-relaxed">${quoteObj.daily_actionable_insight}</p>
                         </div>
+                    </div>
+                    
+                    <!-- Action Bar (Bottom) -->
+                    <div class="flex items-center justify-end gap-2 mt-4 pt-4 border-t border-white/10 action-container transition-opacity duration-200 w-full z-20">
+                        ${quoteObj.isCustom ? `
+                        <button class="delete-quote-btn p-3 rounded-full bg-white/5 hover:bg-red-500/20 text-white/50 hover:text-red-400 transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]" data-id="${quoteObj.id}" title="Delete Quote">
+                            <i data-lucide="trash-2" class="w-5 h-5"></i>
+                        </button>
+                        ` : ''}
+                        <button class="download-quote-btn p-3 rounded-full bg-white/5 hover:bg-white/20 text-white/50 hover:text-white transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]" data-id="${quoteObj.id}" title="Download as Image">
+                            <i data-lucide="download" class="w-5 h-5"></i>
+                        </button>
+                        <button class="bookmark-toggle-btn p-3 rounded-full bg-white/5 hover:bg-white/20 transition-colors flex items-center justify-center min-w-[44px] min-h-[44px]" data-id="${quoteObj.id}" title="Save Quote">
+                            <i data-lucide="heart" class="w-5 h-5 transition-colors ${isBookmarked ? 'text-red-500 fill-current' : 'text-white/50 hover:text-white'} bookmark-indicator"></i>
+                        </button>
                     </div>
 
                     <!-- Heart Animation Container -->
@@ -108,6 +108,16 @@ document.addEventListener('DOMContentLoaded', () => {
             
             quotesContainer.appendChild(cardWrapper);
         });
+
+        // Generate Dots
+        if (carouselDots) {
+            carouselDots.innerHTML = '';
+            filteredQuotes.forEach((_, i) => {
+                const dot = document.createElement('div');
+                dot.className = \`carousel-dot \${i === 0 ? 'active' : ''}\`;
+                carouselDots.appendChild(dot);
+            });
+        }
 
         // Re-init newly added icons
         lucide.createIcons();
@@ -140,20 +150,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Animate removal from DOM
                 const wrapper = document.querySelector(`.quote-card-wrapper[data-id="${id}"]`);
                 if (wrapper) {
-                    wrapper.style.transition = 'opacity 0.3s ease, transform 0.3s ease, height 0.3s ease, margin 0.3s ease, padding 0.3s ease';
+                    wrapper.style.transition = 'opacity 0.3s ease, transform 0.3s ease, width 0.3s ease, margin 0.3s ease, padding 0.3s ease';
                     wrapper.style.opacity = '0';
                     wrapper.style.transform = 'scale(0.9)';
                     
                     if (window.innerWidth < 1024) {
-                        wrapper.style.height = '0';
+                        wrapper.style.minWidth = '0';
+                        wrapper.style.width = '0';
+                        wrapper.style.flex = '0';
                         wrapper.style.margin = '0';
                         wrapper.style.padding = '0';
                     }
                     setTimeout(() => {
                         wrapper.remove();
                         updateNavArrowsVisibility();
+                        updateDots();
                     }, 300);
                 }
+            });
+        });
+
+        document.querySelectorAll('.bookmark-toggle-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const id = parseInt(e.currentTarget.dataset.id);
+                const wrapper = document.querySelector(`.quote-card-wrapper[data-id="${id}"]`);
+                const card = wrapper.querySelector('.quote-card');
+                if (card) toggleBookmark(id, card);
             });
         });
 
@@ -228,24 +251,30 @@ document.addEventListener('DOMContentLoaded', () => {
     const toggleBookmark = (id, cardElement) => {
         const index = bookmarkedIds.indexOf(id);
         const animContainer = cardElement.querySelector('.heart-anim-container');
-        const indicator = cardElement.querySelector('.bookmark-indicator').parentElement;
+        const indicator = cardElement.querySelector('.bookmark-indicator');
 
         if (index === -1) {
             // Add
             bookmarkedIds.push(id);
             // Play animation
-            animContainer.classList.remove('animate');
-            void animContainer.offsetWidth; // trigger reflow
-            animContainer.classList.add('animate');
-            // Show indicator
-            indicator.classList.remove('opacity-0');
-            indicator.classList.add('opacity-100');
+            if (animContainer) {
+                animContainer.classList.remove('animate');
+                void animContainer.offsetWidth; // trigger reflow
+                animContainer.classList.add('animate');
+            }
+            // Update button indicator
+            if (indicator) {
+                indicator.classList.remove('text-white/50', 'hover:text-white');
+                indicator.classList.add('text-red-500', 'fill-current');
+            }
         } else {
             // Remove
             bookmarkedIds.splice(index, 1);
-            // Hide indicator
-            indicator.classList.remove('opacity-100');
-            indicator.classList.add('opacity-0');
+            // Update button indicator
+            if (indicator) {
+                indicator.classList.remove('text-red-500', 'fill-current');
+                indicator.classList.add('text-white/50', 'hover:text-white');
+            }
         }
 
         saveBookmarks();
@@ -402,60 +431,89 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // Mobile Scrolling Arrows
+    // Horizontal Mobile Scrolling Arrows & Dots
     const updateNavArrowsVisibility = () => {
         if (window.innerWidth >= 1024) {
-            navArrowsContainer.style.display = 'none';
+            if(navArrowsContainer) navArrowsContainer.style.display = 'none';
+            if(carouselDots) carouselDots.style.display = 'none';
             return;
         }
-        navArrowsContainer.style.display = 'flex';
+        if(navArrowsContainer) navArrowsContainer.style.display = 'flex';
+        if(carouselDots) carouselDots.style.display = 'flex';
         
-        // Hide Up if at top
-        if (quotesContainer.scrollTop <= 10) {
-            navUpBtn.style.opacity = '0.3';
-            navUpBtn.style.pointerEvents = 'none';
-        } else {
-            navUpBtn.style.opacity = '1';
-            navUpBtn.style.pointerEvents = 'auto';
+        // Hide Left if at start
+        if (navLeftBtn) {
+            if (quotesContainer.scrollLeft <= 10) {
+                navLeftBtn.style.opacity = '0.3';
+                navLeftBtn.style.pointerEvents = 'none';
+            } else {
+                navLeftBtn.style.opacity = '1';
+                navLeftBtn.style.pointerEvents = 'auto';
+            }
         }
 
-        // Hide down if at bottom
-        const maxScroll = quotesContainer.scrollHeight - quotesContainer.clientHeight;
-        if (quotesContainer.scrollTop >= maxScroll - 10) {
-            navDownBtn.style.opacity = '0.3';
-            navDownBtn.style.pointerEvents = 'none';
-        } else {
-            navDownBtn.style.opacity = '1';
-            navDownBtn.style.pointerEvents = 'auto';
+        // Hide Right if at end
+        if (navRightBtn) {
+            const maxScroll = quotesContainer.scrollWidth - quotesContainer.clientWidth;
+            if (quotesContainer.scrollLeft >= maxScroll - 10) {
+                navRightBtn.style.opacity = '0.3';
+                navRightBtn.style.pointerEvents = 'none';
+            } else {
+                navRightBtn.style.opacity = '1';
+                navRightBtn.style.pointerEvents = 'auto';
+            }
         }
+    };
+
+    const updateDots = () => {
+        if (window.innerWidth >= 1024 || !carouselDots) return;
+        const containerWidth = quotesContainer.clientWidth;
+        const currentScroll = quotesContainer.scrollLeft;
+        
+        // Calculate active index based on scroll position
+        const activeIndex = Math.round(currentScroll / containerWidth);
+        
+        const dots = carouselDots.querySelectorAll('.carousel-dot');
+        dots.forEach((dot, index) => {
+            if (index === activeIndex) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
     };
 
     quotesContainer.addEventListener('scroll', () => {
-        // Simple requestAnimationFrame for scroll logic
-        requestAnimationFrame(updateNavArrowsVisibility);
+        requestAnimationFrame(() => {
+            updateNavArrowsVisibility();
+            updateDots();
+        });
     });
 
-    window.addEventListener('resize', updateNavArrowsVisibility);
+    window.addEventListener('resize', () => {
+        updateNavArrowsVisibility();
+        updateDots();
+    });
 
     const scrollCard = (direction) => {
-        const containerHeight = quotesContainer.clientHeight;
-        const currentScroll = quotesContainer.scrollTop;
+        const containerWidth = quotesContainer.clientWidth;
+        const currentScroll = quotesContainer.scrollLeft;
         
-        if (direction === 'down') {
-            quotesContainer.scrollBy({
-                top: containerHeight,
+        if (direction === 'right') {
+            quotesContainer.scrollTo({
+                left: currentScroll + containerWidth,
                 behavior: 'smooth'
             });
         } else {
-            quotesContainer.scrollBy({
-                top: -containerHeight,
+            quotesContainer.scrollTo({
+                left: currentScroll - containerWidth,
                 behavior: 'smooth'
             });
         }
     };
 
-    navUpBtn.addEventListener('click', () => scrollCard('up'));
-    navDownBtn.addEventListener('click', () => scrollCard('down'));
+    if (navLeftBtn) navLeftBtn.addEventListener('click', () => scrollCard('left'));
+    if (navRightBtn) navRightBtn.addEventListener('click', () => scrollCard('right'));
 
     // Initialize
     updateBookmarkCount();
