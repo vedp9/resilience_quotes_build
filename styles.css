@@ -15,12 +15,12 @@ html, body {
     margin: 0;
     padding: 0;
     width: 100%;
-    overscroll-behavior-y: none;
 }
 
 @media (max-width: 1024px) {
     html, body {
         height: 100%;
+        overscroll-behavior-y: none;
     }
 }
 
@@ -29,6 +29,7 @@ html, body {
         height: auto;
         min-height: 100vh;
         overflow-y: auto;
+        overscroll-behavior-y: auto;
     }
 }
 
@@ -68,24 +69,31 @@ html, body {
     border-color: rgba(255, 255, 255, 0.3);
 }
 
-/* Mobile Scroll Snap (default) */
-.mobile-snap-container {
-    scroll-snap-type: y mandatory;
-    scroll-behavior: smooth;
-    /* Fix for iOS momentum scrolling */
-    -webkit-overflow-scrolling: touch;
+/* Mobile Layout Overrides */
+@media (max-width: 1024px) {
+    /* Mobile Scroll Snap */
+    .mobile-snap-container {
+        scroll-snap-type: y mandatory;
+        scroll-behavior: smooth;
+        /* Fix for iOS momentum scrolling */
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .quote-card-wrapper {
+        scroll-snap-align: start;
+        height: calc(100vh - 104px); /* Adjusting for header height */
+        padding: 1rem 1rem 2rem 1rem;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        will-change: transform;
+        touch-action: pan-y;
+    }
 }
 
 .quote-card-wrapper {
-    scroll-snap-align: start;
-    height: calc(100vh - 104px); /* Adjusting for header height */
-    padding: 1rem 1rem 2rem 1rem;
     width: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    will-change: transform;
-    touch-action: pan-y;
 }
 
 /* Card Styling */
@@ -123,6 +131,7 @@ html, body {
         min-height: 400px;
         padding: 0;
         scroll-snap-align: none;
+        touch-action: auto;
     }
     
     .quote-card {
